@@ -1,0 +1,144 @@
+# NeuraOps Docker Build Optimization - Post-SonarQube Refactoring
+# Optimized exclusions for refactored architecture (Phase 59-60)
+
+# Python bytecode and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments and package managers
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.uv/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and temporary files
+*.log
+logs/
+test_logs/
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Testing and coverage (keep essential test files)
+.cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+site/
+
+# SonarQube analysis files
+.scannerwork/
+sonar-project.properties
+
+# Code quality tools
+.serena/
+.claude/
+
+# Demo and test data (exclude large files but keep critical demos)
+demo/test_data/large/
+demo/test_logs/*.log
+*.tar.gz
+*.zip
+*.gz
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Docker (prevent recursion)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Environment files (exclude secrets but keep examples)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Backup and temporary files
+*.backup
+*.bak
+*~
+
+# Large binary files
+*.bin
+*.exe
+*.dmg
+*.pkg
+
+# Development-only scripts and configurations
+scripts/dev_*
+scripts/local_*
+*_development.*
+*_test.*
+
+# Project management files (keep essential ones)
+CONTRIBUTING.md
+CHANGELOG.md
+LICENSE
+*.md
+README.md
+CLAUDE.md
+GLOBAL_RULES.md
+
+# Keep only essential configuration
+!pyproject.toml
+!uv.lock

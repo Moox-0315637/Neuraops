@@ -1,0 +1,37 @@
+{
+  "name": "System Health Check",
+  "description": "Comprehensive system monitoring workflow", 
+  "version": "1.0.0",
+  "created_at": "2025-01-10T09:00:00.000Z",
+  "updated_at": "2025-01-10T09:00:00.000Z",
+  "steps": [
+    {
+      "step_id": "cpu_check",
+      "name": "Check CPU Usage",
+      "type": "monitoring",
+      "metric": "cpu_usage",
+      "threshold": 80
+    },
+    {
+      "step_id": "memory_check", 
+      "name": "Check Memory Usage",
+      "type": "monitoring",
+      "metric": "memory_usage",
+      "threshold": 85
+    },
+    {
+      "step_id": "disk_check",
+      "name": "Check Disk Space", 
+      "type": "monitoring",
+      "metric": "disk_usage",
+      "threshold": 90
+    },
+    {
+      "step_id": "alert",
+      "name": "Send Alert if Issues",
+      "type": "notification",
+      "condition": "any_failed",
+      "channels": ["slack", "email"]
+    }
+  ]
+}

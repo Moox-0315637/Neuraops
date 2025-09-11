@@ -1,0 +1,136 @@
+sections:
+  - id: "containers"
+    title: "Containers"
+    order: 1
+    description: "Docker and container orchestration templates"
+    templates:
+      - id: "docker-basic"
+        name: "Basic Dockerfile"
+        type: "docker"
+        language: "dockerfile"
+        version: "1.0.0"
+        author: "NeuraOps Team"
+        created: "2024-01-15"
+        updated: "2024-01-15"
+        file_path: "templates/containers/docker-basic.dockerfile"
+        description: "Production-ready Dockerfile template for web applications"
+        deployment_instructions:
+          - "Build the image: docker build -t myapp ."
+          - "Run container: docker run -p 8080:8080 myapp"
+          - "Check logs: docker logs <container_id>"
+        security_notes:
+          - "Uses non-root user for security"
+          - "Multi-stage build to reduce image size"
+          - "No secrets in environment variables"
+        recommendations:
+          - "Use .dockerignore to exclude unnecessary files"
+          - "Pin base image versions for reproducibility"
+          - "Scan image for vulnerabilities before deployment"
+      
+      - id: "docker-compose-stack"
+        name: "Docker Compose Stack"
+        type: "compose"
+        language: "yaml"
+        version: "1.2.0"
+        author: "NeuraOps Team"
+        created: "2024-01-16"
+        updated: "2024-01-20"
+        file_path: "templates/containers/docker-compose-stack.yml"
+        description: "Complete application stack with database and reverse proxy"
+        deployment_instructions:
+          - "Start stack: docker-compose up -d"
+          - "View logs: docker-compose logs -f"
+          - "Scale service: docker-compose up -d --scale web=3"
+        security_notes:
+          - "Environment variables stored in .env file"
+          - "Networks isolated between services"
+          - "Health checks configured for all services"
+        recommendations:
+          - "Use secrets management for production"
+          - "Configure log rotation for containers"
+          - "Monitor resource usage with cAdvisor"
+
+  - id: "kubernetes"
+    title: "Kubernetes"
+    order: 2
+    description: "Kubernetes deployment and service templates"
+    templates:
+      - id: "k8s-deployment"
+        name: "Kubernetes Deployment"
+        type: "kubernetes"
+        language: "yaml"
+        version: "1.1.0"
+        author: "NeuraOps Team"
+        created: "2024-01-18"
+        updated: "2024-01-25"
+        file_path: "templates/kubernetes/deployment.yaml"
+        description: "Production-ready Kubernetes deployment with best practices"
+        deployment_instructions:
+          - "Apply deployment: kubectl apply -f deployment.yaml"
+          - "Check status: kubectl rollout status deployment/myapp"
+          - "View pods: kubectl get pods -l app=myapp"
+        security_notes:
+          - "Security context configured with non-root user"
+          - "Resource limits and requests defined"
+          - "Network policies for traffic isolation"
+        recommendations:
+          - "Use Helm charts for complex deployments"
+          - "Implement horizontal pod autoscaling"
+          - "Configure monitoring with Prometheus"
+
+  - id: "infrastructure"
+    title: "Infrastructure as Code"
+    order: 3
+    description: "Terraform and infrastructure automation templates"
+    templates:
+      - id: "terraform-aws-vpc"
+        name: "AWS VPC Infrastructure"
+        type: "terraform"
+        language: "hcl"
+        version: "2.0.0"
+        author: "NeuraOps Team"
+        created: "2024-01-20"
+        updated: "2024-01-28"
+        file_path: "templates/terraform/aws-vpc.tf"
+        description: "Complete AWS VPC setup with subnets and security groups"
+        deployment_instructions:
+          - "Initialize: terraform init"
+          - "Plan: terraform plan -var-file=production.tfvars"
+          - "Apply: terraform apply -var-file=production.tfvars"
+          - "Destroy: terraform destroy -var-file=production.tfvars"
+        security_notes:
+          - "Private subnets for application tier"
+          - "Security groups with minimal required access"
+          - "VPC Flow Logs enabled for monitoring"
+        recommendations:
+          - "Use remote state with S3 backend"
+          - "Implement state locking with DynamoDB"
+          - "Tag all resources for cost tracking"
+
+  - id: "automation"
+    title: "Automation & CI/CD"
+    order: 4
+    description: "Ansible playbooks and CI/CD pipeline templates"
+    templates:
+      - id: "ansible-server-setup"
+        name: "Server Configuration"
+        type: "ansible"
+        language: "yaml"
+        version: "1.3.0"
+        author: "NeuraOps Team"
+        created: "2024-01-22"
+        updated: "2024-01-30"
+        file_path: "templates/ansible/server-setup.yml"
+        description: "Complete server hardening and application deployment"
+        deployment_instructions:
+          - "Install Ansible: pip install ansible"
+          - "Run playbook: ansible-playbook -i inventory server-setup.yml"
+          - "Check syntax: ansible-playbook --syntax-check server-setup.yml"
+        security_notes:
+          - "SSH key-based authentication only"
+          - "Firewall rules configured automatically"
+          - "System updates applied during setup"
+        recommendations:
+          - "Use Ansible Vault for sensitive data"
+          - "Test playbooks in staging environment first"
+          - "Implement idempotent tasks for reliability"

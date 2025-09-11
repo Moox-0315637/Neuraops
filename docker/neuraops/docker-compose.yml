@@ -1,0 +1,170 @@
+---
+services:
+  neuraops-core:
+    build:
+      context: ../../
+      dockerfile: docker/images/neuraops-core/Dockerfile
+    container_name: neuraops-core
+    environment:
+      # Ollama Configuration (matches config.py env_prefix="OLLAMA_")
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-gpt-oss:20b}
+      - OLLAMA_TIMEOUT=${OLLAMA_TIMEOUT:-300}
+      - OLLAMA_MAX_TOKENS=${OLLAMA_MAX_TOKENS:-4096}
+      - OLLAMA_TEMPERATURE=${OLLAMA_TEMPERATURE:-0.1}
+      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-1}
+      - OLLAMA_NUM_CTX=${OLLAMA_NUM_CTX:-4096}
+      
+      # NeuraOps Main Configuration (matches config.py env_prefix="NEURAOPS_")
+      - NEURAOPS_LOG_LEVEL=${NEURAOPS_LOG_LEVEL:-INFO}
+      - NEURAOPS_DEBUG=${NEURAOPS_DEBUG:-false}
+      - NEURAOPS_DATA_DIR=/app/data
+      - NEURAOPS_JWT_SECRET=${NEURAOPS_JWT_SECRET}
+      - NEURAOPS_CORS_ORIGINS=${NEURAOPS_CORS_ORIGINS:-*}
+      - NEURAOPS_DATABASE_URL=${NEURAOPS_DATABASE_URL}
+      - NEURAOPS_REDIS_URL=${NEURAOPS_REDIS_URL}
+      - NEURAOPS_CORE_API_URL=${NEURAOPS_CORE_API_URL}
+      
+      # Cache Configuration (matches config.py env_prefix="CACHE_")
+      - CACHE_ENABLED=${CACHE_ENABLED:-true}
+      - CACHE_TTL=${CACHE_TTL:-3600}
+      - CACHE_MAX_ENTRIES=${CACHE_MAX_ENTRIES:-1000}
+      
+      # Security Configuration (matches config.py env_prefix="SECURITY_")
+      - SECURITY_ENABLE_SAFETY_CHECKS=${SECURITY_ENABLE_SAFETY_CHECKS:-true}
+      - SECURITY_AUTO_APPROVE_SAFE=${SECURITY_AUTO_APPROVE_SAFE:-false}
+      - SECURITY_REQUIRE_CONFIRMATION_DANGEROUS=${SECURITY_REQUIRE_CONFIRMATION_DANGEROUS:-true}
+      - SECURITY_AUDIT_ENABLED=${SECURITY_AUDIT_ENABLED:-true}
+      - SECURITY_VALIDATION_ENABLED=${SECURITY_VALIDATION_ENABLED:-true}
+      - SECURITY_WHITELIST_ENABLED=${SECURITY_WHITELIST_ENABLED:-false}
+      - SECURITY_AGENT_MASTER_KEY=${SECURITY_AGENT_MASTER_KEY}
+      - SECURITY_ALLOWED_API_KEYS=${SECURITY_ALLOWED_API_KEYS}
+      
+      # JWT Authentication
+      - DEFAULT_ADMIN_USERNAME=${DEFAULT_ADMIN_USERNAME:-admin}
+      - DEFAULT_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD:-ChangeThisSecurePassword123!}
+      - JWT_EXPIRY_HOURS=${JWT_EXPIRY_HOURS:-24}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - JWT_SECRET=${JWT_SECRET}
+      
+      # Additional variables used by specific components
+      - DEBUG=${DEBUG:-false}
+      - PYTHONPATH=/app/src
+      
+    volumes:
+      - neuraops-data:/app/data
+      - neuraops-cache:/app/cache
+      - neuraops-logs:/app/logs
+      - ./sql:/app/sql:ro
+    ports:
+      - "8000:8000"   # API + WebSocket sur le même port
+    working_dir: /app
+    command: ["uvicorn", "src.api.server:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    tty: true
+    stdin_open: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - neuraops-network
+    dns:
+      - 192.168.20.10
+      - 8.8.8.8
+      - 8.8.4.4
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  neuraops-ui:
+    build:
+      context: ../../
+      dockerfile: docker/images/neuraops-ui/Dockerfile
+      args:
+        ENV_FILE: .env.docker  # Use .env.docker for Docker development (correct API URL)
+    container_name: neuraops-ui
+    environment:
+      # Next.js Configuration
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      
+      # Next.js Public Variables (from .env)
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-NeuraOps}
+      - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION:-0.0.1}
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      
+      # UI Configuration
+      - UI_THEME=${UI_THEME:-system}
+      - UI_ANIMATIONS_ENABLED=${UI_ANIMATIONS_ENABLED:-true}
+      - UI_DEBUG=${UI_DEBUG:-false}
+    ports:
+      - "3000:3000"
+    working_dir: /app
+    depends_on:
+      - neuraops-core
+    networks:
+      - neuraops-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: neuraops-redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - neuraops-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  
+  postgres:
+    image: postgres:16-alpine
+    container_name: neuraops-postgres
+    environment:
+      - POSTGRES_DB=neuraops
+      - POSTGRES_USER=neuraops
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
+      - POSTGRES_MAX_CONNECTIONS=200
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - neuraops-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neuraops -d neuraops"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  neuraops-data:
+    driver: local
+  neuraops-cache:
+    driver: local
+  neuraops-logs:
+    driver: local  
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+
+networks:
+  neuraops-network:
+    driver: bridge

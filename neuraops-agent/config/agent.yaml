@@ -1,0 +1,44 @@
+# NeuraOps Agent Configuration
+# Copy this file to ~/.neuraops/agent.yaml and modify as needed
+
+# Core Connection Settings
+core:
+  url: "http://localhost:8000"  # NeuraOps Core URL (change for production)
+  auth_token: ""                # Authentication token (set your token here for production)
+  timeout: 30                   # Connection timeout in seconds
+
+# Agent Identity
+agent:
+  name: ""                      # Agent name (auto-detected if empty)
+  
+# Connection Management
+connection:
+  reconnect_interval: 30        # Reconnection attempt interval (seconds)
+  heartbeat_interval: 60        # Heartbeat interval (seconds)
+  command_timeout: 300          # Command execution timeout (seconds)
+
+# Metrics Collection
+metrics:
+  enabled: true                 # Enable metrics collection
+  interval: 30                  # Collection interval (seconds)
+  collect_system_info: true     # Include static system information
+  collect_filesystem: true      # Include filesystem information
+
+# Security Settings
+security:
+  enable_command_execution: true  # Allow command execution from Core
+  allowed_commands:              # Whitelist of allowed command patterns
+    - "systemctl status"
+    - "ps"
+    - "df" 
+    - "free"
+    - "uptime"
+    - "whoami"
+    - "uname"
+    - "lscpu"
+    - "journalctl"
+
+# Logging
+logging:
+  level: "INFO"                 # DEBUG, INFO, WARNING, ERROR
+  file: ""                      # Log file path (empty = stdout only)

@@ -1,0 +1,28 @@
+quick_links:
+  - id: "getting-started"
+    title: "Getting Started Guide"
+    description: "Quick setup guide for new NeuraOps users"
+    icon: "rocket"
+    url: "/docs/getting-started"
+    category: "tutorial"
+    
+  - id: "best-practices"
+    title: "DevOps Best Practices"
+    description: "Industry-standard practices for secure deployments"
+    icon: "book"
+    url: "/docs/best-practices"
+    category: "guide"
+    
+  - id: "troubleshooting"
+    title: "Common Issues"
+    description: "Solutions for frequently encountered problems"
+    icon: "tool"
+    url: "/docs/troubleshooting"
+    category: "support"
+    
+  - id: "security-checklist"
+    title: "Security Checklist"
+    description: "Essential security measures for production systems"
+    icon: "shield"
+    url: "/docs/security"
+    category: "security"

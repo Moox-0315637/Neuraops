@@ -1,0 +1,27 @@
+{
+  "name": "Database Backup",
+  "description": "Automated database backup workflow",
+  "version": "1.0.0",
+  "created_at": "2025-01-10T09:00:00.000Z", 
+  "updated_at": "2025-01-10T09:00:00.000Z",
+  "steps": [
+    {
+      "step_id": "pre_backup",
+      "name": "Pre-backup validation",
+      "type": "validation",
+      "check": "disk_space"
+    },
+    {
+      "step_id": "backup", 
+      "name": "Create backup",
+      "type": "command",
+      "command": "pg_dump -U postgres mydb > backup.sql"
+    },
+    {
+      "step_id": "upload",
+      "name": "Upload to S3",
+      "type": "storage",
+      "destination": "s3://backups/"
+    }
+  ]
+}

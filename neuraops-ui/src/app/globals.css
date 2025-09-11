@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* NeuraOps Custom Properties */
+    --sidebar-width: 250px;
+    --header-height: 64px;
+    --border-radius: 0.5rem;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Font Weights */
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+  }
+
+  * {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-dark-900 text-white antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-dark-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-primary-500 bg-opacity-20 text-white;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-dark-900;
+  }
+}
+
+@layer components {
+  /* NeuraOps Component Patterns */
+  
+  .neuraops-card {
+    @apply bg-dark-secondary border border-gray-800 rounded-lg shadow-sm;
+  }
+
+  .neuraops-input {
+    @apply bg-dark-tertiary border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors;
+  }
+
+  .neuraops-button-base {
+    @apply inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Status indicators */
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+
+  .status-online {
+    @apply bg-green-500;
+  }
+
+  .status-offline {
+    @apply bg-gray-500;
+  }
+
+  .status-error {
+    @apply bg-red-500;
+  }
+
+  .status-warning {
+    @apply bg-yellow-500;
+  }
+
+  /* Animations */
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Glass morphism effect */
+  .glass-panel {
+    @apply bg-white bg-opacity-5 backdrop-blur-md border border-white border-opacity-10 rounded-lg;
+  }
+
+  /* Terminal styles */
+  .terminal-text {
+    @apply font-mono text-sm leading-relaxed;
+  }
+
+  .terminal-prompt {
+    @apply text-green-400;
+  }
+
+  .terminal-command {
+    @apply text-white;
+  }
+
+  .terminal-output {
+    @apply text-gray-300;
+  }
+
+  .terminal-error {
+    @apply text-red-400;
+  }
+}
+
+@layer utilities {
+  /* Custom utilities */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent;
+  }
+
+  .border-gradient {
+    @apply border border-transparent bg-gradient-to-r from-primary-400 to-primary-600 bg-origin-border;
+  }
+
+  /* Layout utilities */
+  .sidebar-width {
+    width: var(--sidebar-width);
+  }
+
+  .main-content-width {
+    width: calc(100% - var(--sidebar-width));
+  }
+
+  .header-height {
+    height: var(--header-height);
+  }
+
+  /* Animation delays for staggered effects */
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .delay-500 {
+    animation-delay: 500ms;
+  }
+}
+
+/* Dark mode is default, but we can add light mode support later */
+.light {
+  /* Light theme variables if needed */
+}

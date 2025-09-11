@@ -1,0 +1,12 @@
+#!/bin/bash
+# NeuraOps CLI - Proxy to Core via Agent
+# Forwards all commands to NeuraOps Core through the agent connection
+
+# Get the real directory where this script is located (follow symlinks)
+REAL_SCRIPT="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "$REAL_SCRIPT")" && pwd)"
+AGENT_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Change directory and run
+cd "$AGENT_DIR"
+exec uv run python src/cli_proxy.py "$@"

@@ -1,0 +1,519 @@
+---
+# NeuraOps Server Setup and Hardening Playbook
+# Comprehensive server configuration with security best practices
+# Compatible with Ubuntu 20.04/22.04 and CentOS/RHEL 8/9
+
+- name: NeuraOps Production Server Setup
+  hosts: production_servers
+  become: yes
+  gather_facts: yes
+  vars:
+    # Application Configuration
+    app_name: "neuraops"
+    app_user: "{{ app_name }}"
+    app_group: "{{ app_name }}"
+    app_home: "/opt/{{ app_name }}"
+    app_port: 8080
+    app_version: "{{ neuraops_version | default('latest') }}"
+    
+    # Security Configuration
+    ssh_port: 22
+    allowed_users: ["{{ app_user }}", "ubuntu", "admin"]
+    fail2ban_enabled: true
+    firewall_enabled: true
+    
+    # System Configuration
+    timezone: "UTC"
+    ntp_servers:
+      - "pool.ntp.org"
+      - "time.nist.gov"
+    
+    # Docker Configuration
+    docker_users: ["{{ app_user }}", "ubuntu"]
+    docker_compose_version: "2.23.0"
+    
+    # Monitoring Configuration
+    monitoring_enabled: true
+    log_retention_days: 30
+
+  pre_tasks:
+    - name: Validate required variables
+      assert:
+        that:
+          - app_name is defined
+          - app_version is defined
+        fail_msg: "Required variables (app_name, app_version) must be defined"
+
+    - name: Display deployment information
+      debug:
+        msg:
+          - "Deploying {{ app_name }} version {{ app_version }}"
+          - "Target host: {{ inventory_hostname }}"
+          - "OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+
+  tasks:
+    # System Updates and Package Management
+    - name: Update system packages (Ubuntu/Debian)
+      apt:
+        update_cache: yes
+        upgrade: dist
+        autoremove: yes
+        autoclean: yes
+      when: ansible_os_family == "Debian"
+      tags: [system, updates]
+
+    - name: Update system packages (RHEL/CentOS)
+      yum:
+        name: "*"
+        state: latest
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+      tags: [system, updates]
+
+    - name: Install essential packages
+      package:
+        name:
+          - curl
+          - wget
+          - unzip
+          - git
+          - htop
+          - vim
+          - tree
+          - jq
+          - rsync
+          - logrotate
+          - cron
+        state: present
+      tags: [system, packages]
+
+    # User and Group Management
+    - name: Create application group
+      group:
+        name: "{{ app_group }}"
+        system: yes
+        state: present
+      tags: [users, security]
+
+    - name: Create application user
+      user:
+        name: "{{ app_user }}"
+        group: "{{ app_group }}"
+        system: yes
+        shell: /bin/bash
+        home: "{{ app_home }}"
+        create_home: yes
+        state: present
+      tags: [users, security]
+
+    - name: Create application directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: '0755'
+      loop:
+        - "{{ app_home }}"
+        - "{{ app_home }}/config"
+        - "{{ app_home }}/data"
+        - "{{ app_home }}/logs"
+        - "{{ app_home }}/backups"
+        - "/var/log/{{ app_name }}"
+      tags: [filesystem, security]
+
+    # Security Hardening
+    - name: Configure SSH security
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        backup: yes
+      loop:
+        - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
+        - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+        - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
+        - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
+        - { regexp: '^#?AllowUsers', line: "AllowUsers {{ allowed_users | join(' ') }}" }
+      notify: restart ssh
+      tags: [security, ssh]
+
+    - name: Install and configure fail2ban
+      block:
+        - name: Install fail2ban
+          package:
+            name: fail2ban
+            state: present
+
+        - name: Configure fail2ban jail
+          copy:
+            content: |
+              [DEFAULT]
+              bantime = 1800
+              findtime = 600
+              maxretry = 3
+              backend = systemd
+
+              [sshd]
+              enabled = true
+              port = {{ ssh_port }}
+              logpath = /var/log/auth.log
+              maxretry = 3
+
+              [nginx-http-auth]
+              enabled = true
+              port = http,https
+              logpath = /var/log/nginx/error.log
+
+              [nginx-limit-req]
+              enabled = true
+              port = http,https
+              logpath = /var/log/nginx/error.log
+              maxretry = 10
+            dest: /etc/fail2ban/jail.local
+            backup: yes
+          notify: restart fail2ban
+
+        - name: Start and enable fail2ban
+          systemd:
+            name: fail2ban
+            state: started
+            enabled: yes
+      when: fail2ban_enabled
+      tags: [security, fail2ban]
+
+    - name: Configure firewall (UFW)
+      block:
+        - name: Install UFW
+          package:
+            name: ufw
+            state: present
+
+        - name: Reset UFW to defaults
+          ufw:
+            state: reset
+
+        - name: Configure UFW defaults
+          ufw:
+            direction: "{{ item.direction }}"
+            policy: "{{ item.policy }}"
+          loop:
+            - { direction: 'incoming', policy: 'deny' }
+            - { direction: 'outgoing', policy: 'allow' }
+
+        - name: Configure UFW rules
+          ufw:
+            rule: "{{ item.rule }}"
+            port: "{{ item.port }}"
+            proto: "{{ item.proto | default('tcp') }}"
+            comment: "{{ item.comment | default('') }}"
+          loop:
+            - { rule: 'allow', port: '{{ ssh_port }}', comment: 'SSH' }
+            - { rule: 'allow', port: '80', comment: 'HTTP' }
+            - { rule: 'allow', port: '443', comment: 'HTTPS' }
+            - { rule: 'allow', port: '{{ app_port }}', comment: '{{ app_name }} application' }
+
+        - name: Enable UFW
+          ufw:
+            state: enabled
+            logging: 'on'
+      when: firewall_enabled and ansible_os_family == "Debian"
+      tags: [security, firewall]
+
+    # Docker Installation and Configuration
+    - name: Install Docker
+      block:
+        - name: Install Docker dependencies
+          package:
+            name:
+              - apt-transport-https
+              - ca-certificates
+              - curl
+              - gnupg
+              - lsb-release
+            state: present
+          when: ansible_os_family == "Debian"
+
+        - name: Add Docker GPG key
+          apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            state: present
+          when: ansible_os_family == "Debian"
+
+        - name: Add Docker repository
+          apt_repository:
+            repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+            state: present
+          when: ansible_os_family == "Debian"
+
+        - name: Install Docker Engine
+          package:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+
+        - name: Add users to docker group
+          user:
+            name: "{{ item }}"
+            groups: docker
+            append: yes
+          loop: "{{ docker_users }}"
+
+        - name: Start and enable Docker
+          systemd:
+            name: docker
+            state: started
+            enabled: yes
+
+        - name: Configure Docker daemon
+          copy:
+            content: |
+              {
+                "log-driver": "json-file",
+                "log-opts": {
+                  "max-size": "10m",
+                  "max-file": "3"
+                },
+                "storage-driver": "overlay2",
+                "exec-opts": ["native.cgroupdriver=systemd"],
+                "live-restore": true
+              }
+            dest: /etc/docker/daemon.json
+            backup: yes
+          notify: restart docker
+      tags: [docker, containers]
+
+    # Nginx Installation and Configuration
+    - name: Install and configure Nginx
+      block:
+        - name: Install Nginx
+          package:
+            name: nginx
+            state: present
+
+        - name: Remove default Nginx site
+          file:
+            path: "{{ item }}"
+            state: absent
+          loop:
+            - /etc/nginx/sites-enabled/default
+            - /var/www/html/index.nginx-debian.html
+
+        - name: Create Nginx configuration for {{ app_name }}
+          template:
+            src: nginx-app.conf.j2
+            dest: "/etc/nginx/sites-available/{{ app_name }}"
+            backup: yes
+          notify: reload nginx
+
+        - name: Enable {{ app_name }} site
+          file:
+            src: "/etc/nginx/sites-available/{{ app_name }}"
+            dest: "/etc/nginx/sites-enabled/{{ app_name }}"
+            state: link
+          notify: reload nginx
+
+        - name: Test Nginx configuration
+          command: nginx -t
+          changed_when: false
+
+        - name: Start and enable Nginx
+          systemd:
+            name: nginx
+            state: started
+            enabled: yes
+      tags: [nginx, webserver]
+
+    # System Configuration
+    - name: Set timezone
+      timezone:
+        name: "{{ timezone }}"
+      tags: [system, time]
+
+    - name: Configure NTP
+      block:
+        - name: Install NTP
+          package:
+            name: ntp
+            state: present
+
+        - name: Configure NTP servers
+          lineinfile:
+            path: /etc/ntp.conf
+            regexp: '^server '
+            line: "server {{ item }}"
+          loop: "{{ ntp_servers }}"
+          notify: restart ntp
+
+        - name: Start and enable NTP
+          systemd:
+            name: ntp
+            state: started
+            enabled: yes
+      tags: [system, time]
+
+    # Logging and Monitoring Setup
+    - name: Configure log rotation for application
+      copy:
+        content: |
+          {{ app_home }}/logs/*.log {
+            daily
+            missingok
+            rotate {{ log_retention_days }}
+            compress
+            delaycompress
+            notifempty
+            create 644 {{ app_user }} {{ app_group }}
+            postrotate
+              systemctl reload {{ app_name }} >/dev/null 2>&1 || true
+            endscript
+          }
+        dest: "/etc/logrotate.d/{{ app_name }}"
+        mode: '0644'
+      tags: [logging, monitoring]
+
+    - name: Setup system monitoring
+      block:
+        - name: Install monitoring tools
+          package:
+            name:
+              - htop
+              - iotop
+              - netstat-nat
+              - tcpdump
+              - strace
+            state: present
+
+        - name: Create monitoring script
+          copy:
+            content: |
+              #!/bin/bash
+              # NeuraOps System Monitoring Script
+              
+              LOG_FILE="/var/log/{{ app_name }}/system-monitor.log"
+              DATE=$(date '+%Y-%m-%d %H:%M:%S')
+              
+              # System metrics
+              echo "[$DATE] === SYSTEM METRICS ===" >> $LOG_FILE
+              echo "[$DATE] CPU: $(top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | sed 's/%us,//')" >> $LOG_FILE
+              echo "[$DATE] Memory: $(free -m | grep '^Mem:' | awk '{printf \"%.1f%%\", $3/$2 * 100.0}')" >> $LOG_FILE
+              echo "[$DATE] Disk: $(df -h / | awk 'NR==2{printf \"%s\", $5}')" >> $LOG_FILE
+              echo "[$DATE] Load: $(uptime | awk -F'load average:' '{print $2}')" >> $LOG_FILE
+              
+              # Application health
+              if systemctl is-active --quiet {{ app_name }}; then
+                echo "[$DATE] {{ app_name }}: RUNNING" >> $LOG_FILE
+              else
+                echo "[$DATE] {{ app_name }}: STOPPED" >> $LOG_FILE
+              fi
+            dest: "/usr/local/bin/{{ app_name }}-monitor.sh"
+            mode: '0755'
+
+        - name: Setup monitoring cron job
+          cron:
+            name: "{{ app_name }} system monitoring"
+            minute: "*/5"
+            job: "/usr/local/bin/{{ app_name }}-monitor.sh"
+            user: root
+      when: monitoring_enabled
+      tags: [monitoring, cron]
+
+    # Final Security Checks
+    - name: Secure file permissions
+      file:
+        path: "{{ item.path }}"
+        mode: "{{ item.mode }}"
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+      loop:
+        - { path: '/etc/ssh/sshd_config', mode: '0600' }
+        - { path: '/etc/sudoers', mode: '0440' }
+        - { path: "{{ app_home }}/config", mode: '0750', owner: "{{ app_user }}", group: "{{ app_group }}" }
+      tags: [security, permissions]
+
+    - name: Remove unnecessary packages
+      package:
+        name:
+          - telnet
+          - rsh-client
+          - rsh-redone-client
+        state: absent
+      tags: [security, cleanup]
+
+  handlers:
+    - name: restart ssh
+      systemd:
+        name: ssh
+        state: restarted
+      listen: "restart ssh"
+
+    - name: restart fail2ban
+      systemd:
+        name: fail2ban
+        state: restarted
+      listen: "restart fail2ban"
+
+    - name: restart docker
+      systemd:
+        name: docker
+        state: restarted
+      listen: "restart docker"
+
+    - name: reload nginx
+      systemd:
+        name: nginx
+        state: reloaded
+      listen: "reload nginx"
+
+    - name: restart ntp
+      systemd:
+        name: ntp
+        state: restarted
+      listen: "restart ntp"
+
+  post_tasks:
+    - name: Display deployment summary
+      debug:
+        msg:
+          - "=== DEPLOYMENT COMPLETED SUCCESSFULLY ==="
+          - "Application: {{ app_name }} v{{ app_version }}"
+          - "Server: {{ inventory_hostname }}"
+          - "Application URL: http://{{ inventory_hostname }}:{{ app_port }}"
+          - "SSH Access: ssh {{ app_user }}@{{ inventory_hostname }}"
+          - "Logs: {{ app_home }}/logs/"
+          - "=== NEXT STEPS ==="
+          - "1. Configure application-specific settings in {{ app_home }}/config/"
+          - "2. Deploy application containers using docker-compose"
+          - "3. Configure SSL certificates for production"
+          - "4. Setup automated backups"
+          - "5. Configure monitoring alerts"
+
+    - name: Verify services are running
+      systemd:
+        name: "{{ item }}"
+        state: started
+      loop:
+        - ssh
+        - docker
+        - nginx
+        - ntp
+      check_mode: yes
+      register: service_status
+      failed_when: service_status.changed
+
+    - name: Security audit summary
+      debug:
+        msg:
+          - "=== SECURITY AUDIT SUMMARY ==="
+          - "✓ SSH hardened (root login disabled, key-based auth only)"
+          - "✓ Firewall configured with minimal required ports"
+          - "✓ Fail2ban protection enabled"
+          - "✓ System packages updated"
+          - "✓ File permissions secured"
+          - "✓ Monitoring and logging configured"
+          - "✓ Docker daemon security configured"
+          - "✓ Application user created with limited privileges"

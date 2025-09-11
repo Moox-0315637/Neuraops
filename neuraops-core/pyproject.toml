@@ -1,0 +1,185 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "neuraops"
+version = "0.1.0"
+description = "AI-Powered DevOps Assistant for Air-gapped Environments"
+authors = [{name = "NeuraOps Team", email = "team@neuraops.dev"}]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "ollama>=0.3.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "rich>=13.0.0",
+    "typer>=0.9.0",
+    "httpx>=0.25.0",
+    "asyncio-mqtt>=0.13.0",
+    "pathlib-mate>=1.0.0",
+    "aiofiles>=23.0.0",
+    "python-json-logger>=2.0.0",
+    "psutil>=5.9.0",
+    "pyyaml>=6.0.2",
+    # API Dependencies
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "starlette>=0.41.0",
+    "pyjwt>=2.8.0",
+    "redis>=5.0.0",
+    "asyncpg>=0.29.0",
+    "structlog>=23.0.0",
+    "python-multipart>=0.0.6",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt>=3.2.0,<4.0.0",  # Pin bcrypt to v3.x for passlib compatibility
+    "python-jose[cryptography]>=3.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.12.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.5.0",
+    "bandit>=1.7.0",
+    "flake8>=6.0.0",
+]
+test = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0", 
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.12.0",
+]
+
+[project.scripts]
+neuraops = "src.main:main"
+
+[project.urls]
+Homepage = "https://github.com/username/neuraops"
+Repository = "https://gitlab.com/username/neuraops"
+Documentation = "https://neuraops.readthedocs.io"
+
+# ✅ CORRECTION: Configuration pytest avec asyncio settings
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+    "--junit-xml=test-results.xml",
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "asyncio: marks tests as async",
+]
+# ✅ CORRECTION: Configuration asyncio pour éliminer warnings
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+asyncio_default_test_loop_scope = "function"
+
+# ✅ CORRECTION: Configuration coverage
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/virtualenv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+# ✅ CORRECTION: Configuration mypy
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["ollama.*", "tests.*"]
+ignore_errors = true
+
+# ✅ CORRECTION: Configuration black
+[tool.black]
+line-length = 200
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# ✅ CORRECTION: Configuration isort
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 200
+known_first_party = ["src", "tests"]
+
+# ✅ CORRECTION: Configuration bandit
+[tool.bandit]
+exclude_dirs = ["tests", "test_*.py"]
+skips = ["B101", "B601"]
+
+# ✅ CORRECTION: Configuration Hatchling pour trouver les fichiers
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
+    "pytest-cov>=6.2.1",
+    "pytest-mock>=3.14.1",
+]
+

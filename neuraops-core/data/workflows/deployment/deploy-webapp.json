@@ -1,0 +1,30 @@
+{
+  "name": "Deploy Web Application",
+  "description": "Deploy a web application with health checks",
+  "version": "1.0.0",
+  "created_at": "2025-01-10T09:00:00.000Z",
+  "updated_at": "2025-01-10T09:00:00.000Z",
+  "steps": [
+    {
+      "step_id": "build",
+      "name": "Build Application", 
+      "type": "command",
+      "command": "docker build -t myapp:latest .",
+      "timeout": 300
+    },
+    {
+      "step_id": "deploy",
+      "name": "Deploy to Production",
+      "type": "deployment", 
+      "target": "production",
+      "rollback_on_failure": true
+    },
+    {
+      "step_id": "health_check",
+      "name": "Health Check",
+      "type": "validation",
+      "endpoint": "/health",
+      "expected_status": 200
+    }
+  ]
+}

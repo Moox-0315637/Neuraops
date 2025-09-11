@@ -1,0 +1,100 @@
+---
+
+services:
+  neuraops-agent:
+    build:
+      context: ../../
+      dockerfile: docker/images/neuraops-agent/Dockerfile
+      target: agent
+    container_name: neuraops-agent
+    hostname: ${AGENT_HOSTNAME:-docker-host}
+    
+    # ====== ACCESS SYSTÈME HÔTE ======
+    # Mode privilégié pour accès complet au système
+    privileged: true
+    
+    # Accès au système de fichiers hôte
+    volumes:
+      # Filesystem principal (lecture seule pour sécurité)
+      - /:/host:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /dev:/host/dev:ro
+      
+      # Accès spécifique pour monitoring
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # Docker monitoring
+      - /var/log:/host/var/log:ro                     # System logs
+      - /etc:/host/etc:ro                             # Configuration files
+      
+      # Données persistantes agent
+      - neuraops-agent-data:/app/data
+      - neuraops-agent-logs:/app/logs
+      - neuraops-agent-config:/app/config
+
+    # Network access
+    network_mode: host  # Accès direct au réseau hôte pour monitoring complet
+    
+    # ====== CONFIGURATION AGENT ======
+    environment:
+      # Connection à NeuraOps Core
+      - NEURAOPS_CORE_URL=${NEURAOPS_CORE_URL:-http://localhost:8000}
+      - NEURAOPS_AUTH_TOKEN=${NEURAOPS_AUTH_TOKEN}
+      
+      # Agent configuration
+      - NEURAOPS_AGENT_NAME=${AGENT_NAME:-docker-agent}
+      - NEURAOPS_LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - NEURAOPS_METRICS_INTERVAL=${METRICS_INTERVAL:-30}
+      
+      # Host system paths (pour que l'agent sache où chercher)
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
+      - HOST_ROOT=/host
+      - HOST_DEV=/host/dev
+      - HOST_VAR_LOG=/host/var/log
+      
+      # Security
+      - NEURAOPS_ENABLE_SAFETY_CHECKS=true
+      - NEURAOPS_SANDBOX_COMMANDS=${SANDBOX_COMMANDS:-true}
+      
+    # ====== CAPACITÉS SYSTÈME ======
+    cap_add:
+      - SYS_ADMIN     # Administration système
+      - NET_ADMIN     # Administration réseau
+      - SYS_PTRACE    # Process tracing pour monitoring avancé
+      - AUDIT_READ    # Lecture logs système
+      - MKNOD         # Création device nodes
+      - SYS_RAWIO     # Accès raw I/O pour monitoring disque
+    
+    # ====== SÉCURITÉ ======
+    # Limites ressources pour éviter impact sur hôte
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "from src.agent import is_agent_running; exit(0 if is_agent_running() else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+# ====== VOLUMES PERSISTANTS ======
+volumes:
+  neuraops-agent-data:
+    driver: local
+  neuraops-agent-logs:
+    driver: local  
+  neuraops-agent-config:
+    driver: local
+
+# ====== CONFIGURATION RÉSEAU ======
+# Note: En mode host, pas besoin de networks séparés
