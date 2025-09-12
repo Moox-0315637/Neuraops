@@ -71,7 +71,7 @@ class CommandExecutor:
             elif cmd_type == "service_status":
                 result = await self._service_status(command)
             elif cmd_type == "system_info":
-                result = self._system_info()  # S1172: No command parameter needed
+                result = self._system_info()  # No command parameter needed
             else:
                 result = CommandResult(
                     success=False,
@@ -168,7 +168,7 @@ class CommandExecutor:
                 error_message=str(e)
             )
     
-    def _read_file(self, command: Dict[str, Any]) -> CommandResult:  # S7503: Remove async - no await used
+    def _read_file(self, command: Dict[str, Any]) -> CommandResult:  # Sync method - no await used
         """Read a file safely."""
         file_path = command.get("path", "")
         max_size = command.get("max_size", 1024 * 1024)  # 1MB default
@@ -234,7 +234,7 @@ class CommandExecutor:
                 error_message=str(e)
             )
     
-    def _list_directory(self, command: Dict[str, Any]) -> CommandResult:  # S7503: Remove async - no await used
+    def _list_directory(self, command: Dict[str, Any]) -> CommandResult:  # Sync method - no await used
         """List directory contents safely."""
         dir_path = command.get("path", "")
         
@@ -317,7 +317,7 @@ class CommandExecutor:
             "timeout": 10
         })
     
-    def _system_info(self) -> CommandResult:  # S7503: Remove async - no await used, S1172: Remove unused command parameter
+    def _system_info(self) -> CommandResult:  # Sync method - no await used, no command parameter
         """Gather system information."""
         # Use collector for system info
         from .collector import MetricsCollector

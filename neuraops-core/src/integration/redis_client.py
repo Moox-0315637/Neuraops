@@ -1,7 +1,7 @@
 """
 Redis Integration Client for NeuraOps API
 
-Distributed caching and session management following CLAUDE.md: < 150 lines.
+Distributed caching and session management.
 Provides Redis operations for agent data, metrics, and cache.
 """
 from typing import Optional, Dict, Any, List
@@ -19,8 +19,8 @@ class RedisClient:
     """
     Redis client wrapper for NeuraOps operations
     
-    CLAUDE.md: Single Responsibility - Redis operations only
-    CLAUDE.md: Fail Fast - Handle Redis connection failures
+    Single Responsibility - Redis operations only
+    Fail Fast - Handle Redis connection failures
     """
     
     def __init__(self, redis_url: Optional[str] = None):
@@ -33,8 +33,8 @@ class RedisClient:
         """
         Get current UTC timestamp in timezone-aware format
         
-        CLAUDE.md: Helper function < 10 lines
-        Fixes SonarQube S6903: Replace deprecated datetime.utcnow()
+        Helper function
+        Replace deprecated datetime.utcnow()
         """
         return int(datetime.now(timezone.utc).timestamp())
 
@@ -42,8 +42,8 @@ class RedisClient:
         """
         Calculate cutoff timestamp for time range queries
         
-        CLAUDE.md: Helper function < 10 lines
-        Fixes SonarQube S6903: Replace deprecated datetime.utcnow()
+        Helper function
+        Replace deprecated datetime.utcnow()
         """
         cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=minutes)
         return int(cutoff_time.timestamp())
@@ -52,7 +52,7 @@ class RedisClient:
         """
         Establish Redis connection
         
-        CLAUDE.md: Fail Fast - Early connection validation
+        Fail Fast - Early connection validation
         """
         try:
             self.client = redis.from_url(
@@ -87,7 +87,7 @@ class RedisClient:
         """
         Store agent data with TTL using agent_info: prefix for UI compatibility
         
-        CLAUDE.md: Simple data storage with expiration
+        Simple data storage with expiration
         """
         if not self.connected or not self.client:
             return False
@@ -126,7 +126,7 @@ class RedisClient:
         """
         Store command execution details
         
-        CLAUDE.md: Safety-First - Persist command history
+        Safety-First - Persist command history
         """
         if not self.connected or not self.client:
             return False
@@ -170,7 +170,7 @@ class RedisClient:
         """
         Store agent metrics with timestamp
         
-        CLAUDE.md: Simple metrics storage
+        Simple metrics storage
         """
         if not self.connected or not self.client:
             return False

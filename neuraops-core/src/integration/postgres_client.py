@@ -1,7 +1,7 @@
 """
 PostgreSQL Integration Client for NeuraOps API
 
-Database operations for persistent storage following CLAUDE.md: < 150 lines.
+Database operations for persistent storage.
 Handles agent registration, command history, and workflow data.
 """
 from typing import Optional, Dict, Any, List
@@ -14,7 +14,7 @@ from ..devops_commander.config import get_config
 
 logger = structlog.get_logger()
 
-# Constants for database operations (Fixes S1192)
+# Constants for database operations
 UPDATE_NO_ROWS_RESULT = "UPDATE 0"
 
 
@@ -22,8 +22,8 @@ class PostgreSQLClient:
     """
     PostgreSQL client for NeuraOps persistent storage
     
-    CLAUDE.md: Single Responsibility - Database operations only
-    CLAUDE.md: Fail Fast - Handle connection failures gracefully
+    Single Responsibility - Database operations only
+    Fail Fast - Handle connection failures gracefully
     """
     
     def __init__(self, database_url: Optional[str] = None):
@@ -37,7 +37,7 @@ class PostgreSQLClient:
         """
         Establish PostgreSQL connection pool
         
-        CLAUDE.md: Fail Fast - Early connection validation
+        Fail Fast - Early connection validation
         """
         try:
             self.pool = await asyncpg.create_pool(
@@ -81,7 +81,7 @@ class PostgreSQLClient:
         """
         Initialize database schema
         
-        CLAUDE.md: Simple schema for core entities
+        Simple schema for core entities
         """
         if not self.connected or not self.pool:
             return
@@ -215,7 +215,7 @@ class PostgreSQLClient:
         """
         Register new agent in database
         
-        CLAUDE.md: Safety-First - Validate agent data
+        Safety-First - Validate agent data
         """
         if not self.connected or not self.pool:
             return False

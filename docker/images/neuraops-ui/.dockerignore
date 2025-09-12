@@ -152,3 +152,7 @@ CONTRIBUTING.md
 
 # TypeScript
 # Keep tsconfig.json as it's needed for build
+
+.serena
+.claude
+CLAUDE.md

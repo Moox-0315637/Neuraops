@@ -3,7 +3,7 @@ NeuraOps Agent Modules
 
 Specialized modules for agent functionality with proper async handling.
 Fixes SonarQube S7497 and S7502 errors through modular architecture.
-Follows CLAUDE.md: Single responsibility, < 500 lines per module.
+Single responsibility, modular design.
 """
 
 from .agent_exceptions import AsyncExceptionHandler

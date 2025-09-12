@@ -83,7 +83,6 @@ sonar-project.properties
 
 # Code quality tools
 .serena/
-.claude/
 
 # Demo and test data (exclude large files but keep critical demos)
 demo/test_data/large/
@@ -136,9 +135,12 @@ CHANGELOG.md
 LICENSE
 *.md
 README.md
-CLAUDE.md
 GLOBAL_RULES.md
 
 # Keep only essential configuration
 !pyproject.toml
 !uv.lock
+
+.serena
+.claude
+CLAUDE.md

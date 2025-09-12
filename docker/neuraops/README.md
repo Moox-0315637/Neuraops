@@ -256,4 +256,3 @@ docker exec neuraops-redis redis-cli INFO memory
 - [Configuration Complète](.env)
 - [Schema PostgreSQL](sql/init.sql)
 - [Architecture NeuraOps](../TASK.md)
-- [Principes CLAUDE.md](../CLAUDE.md)

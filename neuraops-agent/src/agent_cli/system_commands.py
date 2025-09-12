@@ -2,7 +2,7 @@
 """
 Agent-side System Commands
 
-CLAUDE.md: < 500 lignes, system info sur l'hôte agent
+System info sur l'hôte agent
 Collecte des informations système locales (platform, environment)
 """
 import platform
@@ -18,7 +18,7 @@ class AgentSystemCommands:
     """
     System information commands that execute on agent host
     
-    CLAUDE.md: Single responsibility pour informations système locales
+    Single responsibility pour informations système locales
     """
     
     def __init__(self):

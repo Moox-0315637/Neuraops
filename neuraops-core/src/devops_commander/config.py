@@ -7,7 +7,7 @@ from typing import Optional
 from pydantic_settings import BaseSettings
 from pydantic import Field, ConfigDict
 
-# Constante pour éviter duplication S1192
+# Constante pour éviter duplication
 NEURAOPS_DIR_NAME = ".neuraops"
 
 def _get_neuraops_path(*subdirs: str) -> Path:

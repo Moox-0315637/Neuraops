@@ -2,8 +2,7 @@
 Background Loops for NeuraOps Agent
 
 Handles metrics and heartbeat loops with proper CancelledError handling.
-Fixes SonarQube S7497 by ensuring correct asyncio cancellation patterns.
-Follows CLAUDE.md: < 200 lines, single responsibility.
+Ensures correct asyncio cancellation patterns.
 """
 import asyncio
 import logging
@@ -19,8 +18,8 @@ class BackgroundLoops:
     """
     Gestionnaire des loops background avec gestion d'exceptions correcte
     
-    CLAUDE.md: Single Responsibility - Background task loops
-    Fixes SonarQube S7497 - Proper CancelledError re-raising in all loops
+    Background task loops management
+    Proper CancelledError re-raising in all loops
     """
     
     def __init__(self):
@@ -36,8 +35,8 @@ class BackgroundLoops:
         """
         Loop de collecte et envoi des métriques
         
-        CLAUDE.md: < 40 lignes - Metrics collection with S7497 fix
-        Fixes S7497: Proper CancelledError re-raising
+        Metrics collection with proper error handling
+        Proper CancelledError re-raising
         
         Args:
             agent: Instance de l'agent pour vérifier running state
@@ -65,7 +64,7 @@ class BackgroundLoops:
                     
                 except asyncio.CancelledError:
                     self.logger.debug("Metrics loop cancelled")
-                    raise  # S7497: Re-raise obligatoire pour propagation correcte
+                    raise  # Re-raise obligatoire pour propagation correcte
                     
                 except Exception as e:
                     self.logger.error(f"Error in metrics loop: {e}")
@@ -74,7 +73,7 @@ class BackgroundLoops:
                     
         except asyncio.CancelledError:
             self.logger.info("Metrics loop cancelled during shutdown")
-            raise  # S7497: Re-raise pour propagation
+            raise  # Re-raise pour propagation
             
         finally:
             self.logger.info("Metrics loop stopped")
@@ -87,8 +86,8 @@ class BackgroundLoops:
         """
         Loop d'envoi de heartbeat vers le Core
         
-        CLAUDE.md: < 30 lignes - Heartbeat with S7497 fix
-        Fixes S7497: Proper CancelledError re-raising
+        Heartbeat with proper error handling
+        Proper CancelledError re-raising
         
         Args:
             agent: Instance de l'agent pour vérifier running state
@@ -109,7 +108,7 @@ class BackgroundLoops:
                     
                 except asyncio.CancelledError:
                     self.logger.debug("Heartbeat loop cancelled")
-                    raise  # S7497: Re-raise obligatoire
+                    raise  # Re-raise obligatoire
                     
                 except Exception as e:
                     self.logger.error(f"Error in heartbeat loop: {e}")
@@ -118,7 +117,7 @@ class BackgroundLoops:
                     
         except asyncio.CancelledError:
             self.logger.info("Heartbeat loop cancelled during shutdown")
-            raise  # S7497: Re-raise pour propagation
+            raise  # Re-raise pour propagation
             
         finally:
             self.logger.info("Heartbeat loop stopped")
@@ -132,8 +131,8 @@ class BackgroundLoops:
         """
         Loop principal de gestion des commandes
         
-        CLAUDE.md: < 40 lignes - Command handling with S7497 fix
-        Fixes S7497: Proper CancelledError re-raising
+        Command handling with proper error handling
+        Proper CancelledError re-raising
         
         Args:
             agent: Instance de l'agent
@@ -163,7 +162,7 @@ class BackgroundLoops:
                     
                 except asyncio.CancelledError:
                     self.logger.debug("Command loop cancelled")
-                    raise  # S7497: Re-raise obligatoire
+                    raise  # Re-raise obligatoire
                     
                 except Exception as e:
                     self.logger.error(f"Error in command loop: {e}")
@@ -171,7 +170,7 @@ class BackgroundLoops:
                     
         except asyncio.CancelledError:
             self.logger.info("Command loop cancelled during shutdown") 
-            raise  # S7497: Re-raise pour propagation
+            raise  # Re-raise pour propagation
             
         finally:
             self.logger.info("Command loop stopped")
@@ -187,7 +186,7 @@ class BackgroundLoops:
         """
         Démarre tous les loops background via task manager
         
-        CLAUDE.md: < 30 lignes - Start all loops with proper task management
+        Start all loops with proper task management
         Fixes S7502: Uses task manager for proper reference handling
         Fixes S7503: Synchronous function - no async keyword needed
         

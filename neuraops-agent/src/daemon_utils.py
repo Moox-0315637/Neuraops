@@ -3,7 +3,6 @@ Daemon Utilities for NeuraOps Agent
 
 Handles daemon process management with proper os import.
 Fixes Pylance error by ensuring os module is properly imported.
-Follows CLAUDE.md: < 100 lines, single responsibility.
 """
 import os
 import sys
@@ -21,7 +20,6 @@ def daemonize() -> None:
     """
     Run agent as daemon process
     
-    CLAUDE.md: < 30 lines - Standard daemon pattern
     Fixes Pylance: os module properly imported at module level
     """
     logger.info("Starting daemon process")
@@ -58,8 +56,6 @@ def daemonize() -> None:
 def _redirect_streams() -> None:
     """
     Redirect standard streams to /dev/null
-    
-    CLAUDE.md: < 15 lines - Stream redirection helper
     """
     with open("/dev/null", "r") as dev_null:
         os.dup2(dev_null.fileno(), sys.stdin.fileno())
@@ -73,7 +69,6 @@ def is_agent_running() -> bool:
     """
     Check if agent daemon is running
     
-    CLAUDE.md: < 20 lines - PID file check with proper os import
     Fixes Pylance: os module available at module level (line 7)
     
     Returns:
@@ -102,8 +97,6 @@ def is_agent_running() -> bool:
 def stop_agent() -> None:
     """
     Stop running agent daemon
-    
-    CLAUDE.md: < 25 lines - Graceful daemon shutdown
     """
     pid_file = get_pid_file_path()
     
@@ -132,8 +125,6 @@ def create_pid_file(pid: Optional[int] = None) -> Path:
     """
     Create PID file for daemon process
     
-    CLAUDE.md: < 15 lines - PID file creation
-    
     Args:
         pid: Process ID to write (defaults to current process)
         
@@ -153,8 +144,6 @@ def create_pid_file(pid: Optional[int] = None) -> Path:
 def get_pid_file_path() -> Path:
     """
     Get path to PID file
-    
-    CLAUDE.md: < 10 lines - Simple path helper
     
     Returns:
         Path to PID file

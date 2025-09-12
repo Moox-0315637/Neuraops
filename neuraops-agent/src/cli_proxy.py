@@ -152,7 +152,7 @@ class NeuraOpsProxy:
             return 1
     
     def _build_local_command(self, command: str, args: List[str]) -> List[str]:
-        """Build local command args following CLAUDE.md < 10 lines"""
+        """Build local command args"""
         # Handle special command argument order for logs
         if command == "logs" and len(args) >= 2 and args[0] == "analyze":
             file_path = args[1]
@@ -165,12 +165,12 @@ class NeuraOpsProxy:
         return ["uv", "run", "python", "-m", "src.main", command] + final_args
     
     def _get_core_path(self) -> str:
-        """Get core path following CLAUDE.md < 5 lines"""
+        """Get core path"""
         return "/Users/maximedegournay/projet/gitlab/NeuraOps/neuraops-core"
     
     async def _execute_command_locally(self, command: str, args: List[str]) -> int:
         """
-        Execute command locally using async subprocess following CLAUDE.md < 15 lines
+        Execute command locally using async subprocess
         Fixes S7503 + S7487: async subprocess for async function
         """
         try:
@@ -194,7 +194,7 @@ class NeuraOpsProxy:
             return 1
 
     async def _validate_and_authenticate(self) -> Optional[str]:
-        """Validate connection and get JWT token following CLAUDE.md < 15 lines"""
+        """Validate connection and get JWT token"""
         jwt_token = await self._get_jwt_token()
         if not jwt_token:
             self._print_error("Failed to authenticate with Core")
@@ -202,7 +202,7 @@ class NeuraOpsProxy:
         return jwt_token
     
     def _create_http_client(self, jwt_token: str) -> "httpx.AsyncClient":
-        """Create HTTP client with JWT auth following CLAUDE.md < 15 lines"""
+        """Create HTTP client with JWT auth"""
         import httpx
         timeout = httpx.Timeout(connect=10.0, read=300.0, write=30.0, pool=30.0)
         return httpx.AsyncClient(
@@ -216,7 +216,7 @@ class NeuraOpsProxy:
         )
     
     def _prepare_command_payload(self, args: List[str]) -> Dict[str, Any]:
-        """Prepare command payload following CLAUDE.md < 15 lines"""
+        """Prepare command payload"""
         return {
             "command": args[0] if args else "",
             "args": args[1:] if len(args) > 1 else [],
@@ -230,7 +230,7 @@ class NeuraOpsProxy:
         }
     
     async def _process_success_response(self, result: Dict[str, Any], args: List[str]) -> int:
-        """Process successful API response following CLAUDE.md < 15 lines"""
+        """Process successful API response"""
         if "data" in result:
             data = result["data"]
             error_text = data.get("stderr", "") + " " + data.get("stdout", "")
@@ -247,7 +247,7 @@ class NeuraOpsProxy:
             return self._handle_command_result(result)
     
     def _process_error_response(self, response: "httpx.Response") -> int:
-        """Process API error response following CLAUDE.md < 15 lines"""
+        """Process API error response"""
         if response.status_code == 404:
             self._print_error("Core CLI endpoint not available")
             self._print_error("This feature requires NeuraOps Core v2.0+")
@@ -264,7 +264,7 @@ class NeuraOpsProxy:
         return 1
     
     async def _handle_api_response(self, response: "httpx.Response", args: List[str]) -> int:
-        """Handle API response and fallback following CLAUDE.md < 15 lines"""
+        """Handle API response and fallback"""
         if response.status_code == 200:
             result = response.json()
             return await self._process_success_response(result, args)
@@ -272,7 +272,7 @@ class NeuraOpsProxy:
         return self._process_error_response(response)
     
     def _handle_connection_error(self, error: Exception) -> int:
-        """Handle connection errors following CLAUDE.md < 10 lines"""
+        """Handle connection errors"""
         import httpx
         if isinstance(error, httpx.ConnectError):
             self._print_error(f"Cannot connect to NeuraOps Core at {self.config.core_url}")
@@ -285,7 +285,7 @@ class NeuraOpsProxy:
         return 1
     
     async def _forward_command(self, args: List[str]) -> int:
-        """Forward command to NeuraOps Core following CLAUDE.md < 15 lines"""
+        """Forward command to NeuraOps Core"""
         try:
             jwt_token = await self._validate_and_authenticate()
             if not jwt_token:
@@ -363,7 +363,7 @@ class InteractiveProxy:
             return await self._interactive_http_fallback()
     
     async def _send_interactive_command(self, command: str) -> Dict[str, Any]:
-        """Send interactive command via WebSocket following CLAUDE.md < 15 lines"""
+        """Send interactive command via WebSocket"""
         if not self.connector.websocket or self.connector.websocket.closed:
             # Fallback to HTTP if WebSocket not available
             proxy = NeuraOpsProxy()
@@ -382,7 +382,7 @@ class InteractiveProxy:
         return {"status": "sent_via_websocket"}
     
     async def _wait_for_interactive_response(self) -> Optional[Dict]:
-        """Wait for interactive command response using timeout context manager following CLAUDE.md < 15 lines"""
+        """Wait for interactive command response using timeout context manager"""
         try:
             # Use asyncio.timeout context manager (Python 3.11+) or asyncio.wait_for for older versions
             async with asyncio.timeout(30.0):  # 30 second timeout
@@ -399,7 +399,7 @@ class InteractiveProxy:
             return None  # Timeout after 30 seconds
     
     def _display_interactive_response(self, response: Dict[str, Any]) -> None:
-        """Display interactive command response following CLAUDE.md < 10 lines"""
+        """Display interactive command response"""
         if "output" in response:
             print(response["output"])
         
@@ -410,7 +410,7 @@ class InteractiveProxy:
             print(f"Status: {response['status']}")
     
     async def _interactive_websocket_loop(self) -> int:
-        """WebSocket interactive command loop following CLAUDE.md < 15 lines"""
+        """WebSocket interactive command loop"""
         print("NeuraOps Interactive Mode - WebSocket Connected to Core")
         print(INTERACTIVE_EXIT_MESSAGE)
         print()
@@ -440,7 +440,7 @@ class InteractiveProxy:
         return 0
     
     async def _interactive_http_fallback(self) -> int:
-        """HTTP fallback for interactive mode following CLAUDE.md < 10 lines"""
+        """HTTP fallback for interactive mode"""
         print("NeuraOps Interactive Mode - Using HTTP mode (WebSocket unavailable)")
         print(INTERACTIVE_EXIT_MESSAGE)
         print()

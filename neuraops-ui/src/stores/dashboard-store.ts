@@ -6,7 +6,7 @@ import { create } from 'zustand'
 import { apiService } from '@/services/api'
 import type { Agent, Alert, Command } from '@/types'
 
-// Type aliases to avoid duplication (SonarQube S4323)
+// Type aliases to avoid duplication
 type AlertType = 'HIGH' | 'MEDIUM' | 'LOW'
 type AlertSeverity = 'critical' | 'warning' | 'info'
 type ActivityStatus = 'COMPLETED' | 'RUNNING' | 'SCANNING' | 'FAILED'

@@ -175,7 +175,7 @@ class MetricsCollector:
                         "percent": usage.percent,
                         "fstype": partition.fstype
                     }
-                except OSError:  # S5713: PermissionError is subclass of OSError
+                except OSError:  # PermissionError is subclass of OSError
                     # Skip inaccessible mount points
                     continue
         
@@ -211,7 +211,7 @@ class MetricsCollector:
                 
                 filesystems.append(filesystem)
                 
-            except OSError:  # S5713: PermissionError is subclass of OSError
+            except OSError:  # PermissionError is subclass of OSError
                 # Skip inaccessible mount points
                 continue
         

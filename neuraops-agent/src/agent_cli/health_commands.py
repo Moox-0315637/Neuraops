@@ -2,7 +2,7 @@
 """
 Agent-side Health Commands
 
-CLAUDE.md: < 500 lignes, health monitoring sur l'hôte agent
+Health monitoring sur l'hôte agent
 Collecte des informations système locales (disque, CPU, mémoire, réseau)
 """
 import psutil
@@ -17,7 +17,7 @@ class AgentHealthCommands:
     """
     Health monitoring commands that execute on agent host
     
-    CLAUDE.md: Single responsibility pour monitoring local
+    Single responsibility pour monitoring local
     """
     
     def __init__(self):
