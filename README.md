@@ -312,10 +312,6 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **Documentation**: Keep docs synchronized with code changes
 - **Testing**: Maintain >80% test coverage
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - **OpenAI** for the gpt-oss-20b model
@@ -323,14 +319,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **FastAPI** for the robust API framework
 - **Next.js** for the modern UI framework
 - **Typer** for the intuitive CLI interface
-
-## 💬 Support
-
-- **Documentation**: [docs.neuraops.com](https://docs.neuraops.com)
-- **Issues**: [GitHub Issues](https://github.com/neuraops/neuraops/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/neuraops/neuraops/discussions)
-- **Email**: team@neuraops.dev
-
----
 
 **NeuraOps** - Empowering DevOps teams with AI-driven automation and intelligent operations management.
