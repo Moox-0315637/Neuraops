@@ -1,172 +1,172 @@
 # NeuraOps Scripts
 
-Collection de scripts pour automatiser les tâches courantes du projet NeuraOps.
+Collection of scripts to automate common tasks for the NeuraOps project.
 
-## 📜 Scripts Disponibles
+## 📜 Available Scripts
 
-### 🔧 **install.sh** - Installation Complète
-Installation complète de NeuraOps et de ses dépendances.
+### 🔧 **install.sh** - Complete Installation
+Complete installation of NeuraOps and its dependencies.
 
 ```bash
 ./scripts/install.sh
 ```
 
-**Fonctionnalités :**
-- Vérifie les prérequis (Python 3.11+, Node.js 18+)
-- Installe UV package manager
-- Configure les environnements Python pour Core et Agent
-- Installe les dépendances Node.js pour l'UI
-- Crée les fichiers .env depuis les templates
-- Vérifie l'installation
+**Features:**
+- Checks prerequisites (Python 3.11+, Node.js 18+)
+- Installs UV package manager
+- Sets up Python environments for Core and Agent
+- Installs Node.js dependencies for UI
+- Creates .env files from templates
+- Verifies installation
 
-**Variables d'environnement :**
-- `INSTALL_UV=true/false` - Installer UV (défaut: true)
-- `INSTALL_OLLAMA=true/false` - Installer Ollama (défaut: false)
-- `SETUP_ENV=true/false` - Créer les fichiers .env (défaut: true)
+**Environment variables:**
+- `INSTALL_UV=true/false` - Install UV (default: true)
+- `INSTALL_OLLAMA=true/false` - Install Ollama (default: false)
+- `SETUP_ENV=true/false` - Create .env files (default: true)
 
 ---
 
-### 🏗️ **build.sh** - Construction du Projet
-Build tous les composants NeuraOps pour production ou développement.
+### 🏗️ **build.sh** - Project Build
+Build all NeuraOps components for production or development.
 
 ```bash
-# Build complet pour production
+# Complete build for production
 ./scripts/build.sh all production
 
-# Build composant spécifique
+# Build specific component
 ./scripts/build.sh core
 ./scripts/build.sh agent
 ./scripts/build.sh ui
 ./scripts/build.sh docker
 
-# Build pour développement
+# Build for development
 ./scripts/build.sh all development
 ```
 
-**Options :**
-- `all` - Build tous les composants (défaut)
-- `core` - Build NeuraOps Core seulement
-- `agent` - Build NeuraOps Agent seulement
-- `ui` - Build NeuraOps UI seulement
-- `docker` - Build images Docker seulement
+**Options:**
+- `all` - Build all components (default)
+- `core` - Build NeuraOps Core only
+- `agent` - Build NeuraOps Agent only
+- `ui` - Build NeuraOps UI only
+- `docker` - Build Docker images only
 
-**Environnements :**
-- `production` - Build optimisé pour production (défaut)
-- `development` - Build pour développement
+**Environments:**
+- `production` - Optimized build for production (default)
+- `development` - Build for development
 
 ---
 
-### 🚀 **dev.sh** - Environnement de Développement
-Lance l'environnement de développement avec rechargement automatique.
+### 🚀 **dev.sh** - Development Environment
+Launch development environment with automatic reloading.
 
 ```bash
-# Démarrage standard (Core API + UI)
+# Standard startup (Core API + UI)
 ./scripts/dev.sh
 
-# Options avancées
-./scripts/dev.sh --with-agent     # Inclure l'agent
-./scripts/dev.sh --with-ollama    # Auto-démarrer Ollama
-./scripts/dev.sh --no-core        # Sans Core API
-./scripts/dev.sh --no-ui          # Sans interface UI
+# Advanced options
+./scripts/dev.sh --with-agent     # Include agent
+./scripts/dev.sh --with-ollama    # Auto-start Ollama
+./scripts/dev.sh --no-core        # Without Core API
+./scripts/dev.sh --no-ui          # Without UI interface
 ```
 
-**Services démarrés :**
-- **Core API** : http://localhost:8000 (avec docs sur /docs)
-- **Web UI** : http://localhost:3000
-- **Agent** : Service en arrière-plan (si --with-agent)
+**Services started:**
+- **Core API**: http://localhost:8000 (with docs at /docs)
+- **Web UI**: http://localhost:3000
+- **Agent**: Background service (if --with-agent)
 
-**Contrôles :**
-- `Ctrl+C` - Arrêter tous les services
-- Monitoring automatique des services
+**Controls:**
+- `Ctrl+C` - Stop all services
+- Automatic service monitoring
 
 ---
 
-### 🧹 **clean.sh** - Nettoyage du Projet
-Nettoie les fichiers de build, cache et fichiers temporaires.
+### 🧹 **clean.sh** - Project Cleanup
+Cleans build files, cache, and temporary files.
 
 ```bash
-# Nettoyage standard
+# Standard cleanup
 ./scripts/clean.sh
 
-# Nettoyage approfondi
+# Deep cleanup
 ./scripts/clean.sh deep
 
-# Nettoyage complet
+# Complete cleanup
 ./scripts/clean.sh all
 
 # Simulation (dry-run)
 ./scripts/clean.sh standard dry-run
 ```
 
-**Niveaux de nettoyage :**
+**Cleanup levels:**
 
 #### **Standard**
-- Cache Python (`__pycache__`, `.pytest_cache`)
+- Python cache (`__pycache__`, `.pytest_cache`)
 - Build files (`dist/`, `build/`, `.next/`)
-- Logs et fichiers temporaires
+- Logs and temporary files
 
 #### **Deep**
-- Tout du niveau standard
-- Environnements virtuels (`venv/`, `.venv/`)
-- Images et conteneurs Docker
+- Everything from standard level
+- Virtual environments (`venv/`, `.venv/`)
+- Docker images and containers
 
 #### **All**
-- Tout du niveau deep
+- Everything from deep level
 - `node_modules/`
-- Fichiers `.env` (garde `.env.example`)
+- `.env` files (keeps `.env.example`)
 
 ---
 
-## 🎯 Workflows Typiques
+## 🎯 Typical Workflows
 
-### Installation Initiale
+### Initial Installation
 ```bash
-# 1. Installation complète
+# 1. Complete installation
 ./scripts/install.sh
 
-# 2. Configuration manuelle des .env
+# 2. Manual .env configuration
 nano neuraops-core/.env
 nano neuraops-agent/.env
 nano neuraops-ui/.env
 
-# 3. Démarrage Ollama (si installé)
+# 3. Start Ollama (if installed)
 ollama serve
 
-# 4. Test de développement
+# 4. Development test
 ./scripts/dev.sh
 ```
 
-### Développement Quotidien
+### Daily Development
 ```bash
-# Démarrer l'environnement
+# Start environment
 ./scripts/dev.sh
 
-# Dans un autre terminal : tests/modifications
+# In another terminal: tests/modifications
 cd neuraops-core
 uv run python -m src.main health --verbose
 
-# Nettoyage périodique
+# Periodic cleanup
 ./scripts/clean.sh standard
 ```
 
-### Build de Production
+### Production Build
 ```bash
-# Nettoyage complet
+# Complete cleanup
 ./scripts/clean.sh deep
 
-# Build de production
+# Production build
 ./scripts/build.sh all production
 
-# Test du build
+# Test the build
 cd dist/ && ls -la
 ```
 
-### Réinitialisation Complète
+### Complete Reset
 ```bash
-# Nettoyage total
+# Total cleanup
 ./scripts/clean.sh all
 
-# Réinstallation
+# Reinstallation
 ./scripts/install.sh
 
 # Rebuild
@@ -177,7 +177,7 @@ cd dist/ && ls -la
 
 ## ⚙️ Configuration
 
-### Variables d'Environnement Globales
+### Global Environment Variables
 
 ```bash
 # Installation
@@ -185,60 +185,60 @@ export INSTALL_UV=true
 export INSTALL_OLLAMA=false
 export SETUP_ENV=true
 
-# Développement
+# Development
 export NEXT_PUBLIC_API_URL=http://localhost:8000
 export OLLAMA_BASE_URL=http://localhost:11434
 ```
 
-### Prérequis Système
-- **Python** 3.11+ avec pip
-- **Node.js** 18+ avec npm
-- **UV** (installé automatiquement)
-- **Ollama** (optionnel, pour l'IA)
-- **Docker** (optionnel, pour conteneurisation)
+### System Prerequisites
+- **Python** 3.11+ with pip
+- **Node.js** 18+ with npm
+- **UV** (installed automatically)
+- **Ollama** (optional, for AI)
+- **Docker** (optional, for containerization)
 
 ---
 
-## 🔍 Dépannage
+## 🔍 Troubleshooting
 
-### Erreurs Communes
+### Common Errors
 
 #### "Python 3.11+ required"
 ```bash
-# Vérifier la version
+# Check version
 python3 --version
 
-# Sur macOS avec Homebrew
+# On macOS with Homebrew
 brew install python@3.11
 ```
 
 #### "Node.js 18+ required"
 ```bash
-# Vérifier la version
+# Check version
 node --version
 
-# Installation avec nvm
+# Installation with nvm
 nvm install 18
 nvm use 18
 ```
 
 #### "UV not found"
 ```bash
-# Installation manuelle
+# Manual installation
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source ~/.bashrc
 ```
 
 #### "Ollama connection failed"
 ```bash
-# Vérifier Ollama
+# Check Ollama
 ollama serve
 
-# Dans un autre terminal
+# In another terminal
 curl http://localhost:11434/api/tags
 ```
 
-### Logs de Debugging
+### Debugging Logs
 ```bash
 # Core API logs
 cd neuraops-core
@@ -248,36 +248,34 @@ uv run python -m src.main health --verbose
 cd neuraops-agent
 uv run python -m src.main status
 
-# UI logs (dans le navigateur)
-# Console développeur : F12
+# UI logs (in browser)
+# Developer console: F12
 ```
 
 ---
 
-## 📁 Structure des Scripts
+## 📁 Scripts Structure
 
 ```
 scripts/
-├── README.md           # Ce fichier
-├── install.sh          # Installation complète
-├── build.sh            # Build du projet
-├── dev.sh              # Environnement de développement
-└── clean.sh            # Nettoyage du projet
+├── README.md           # This file
+├── install.sh          # Complete installation
+├── build.sh            # Project build
+├── dev.sh              # Development environment
+└── clean.sh            # Project cleanup
 ```
 
 ---
 
-## 🤝 Contribution
+To add new scripts:
 
-Pour ajouter de nouveaux scripts :
+1. Create the script in `scripts/`
+2. Make it executable: `chmod +x scripts/new-script.sh`
+3. Follow the format of existing scripts
+4. Document in this README
+5. Test on different OS (macOS, Linux)
 
-1. Créer le script dans `scripts/`
-2. Le rendre exécutable : `chmod +x scripts/nouveau-script.sh`
-3. Suivre le format des scripts existants
-4. Documenter dans ce README
-5. Tester sur différents OS (macOS, Linux)
-
-**Template de script :**
+**Script template:**
 ```bash
 #!/bin/bash
 set -e  # Exit on error
