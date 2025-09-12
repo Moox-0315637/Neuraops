@@ -292,10 +292,6 @@ NeuraOps/
 - **WebSocket**: Real-time communication
 - **Structured Logging**: JSON-based log aggregation
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
 ### Development Workflow
 
 1. **Fork the repository**
