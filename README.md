@@ -1,6 +1,4 @@
 # NeuraOps
-
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11+-green.svg)
 ![Next.js](https://img.shields.io/badge/next.js-15.x-black.svg)
 ![Status](https://img.shields.io/badge/status-alpha-orange.svg)
@@ -292,10 +290,6 @@ NeuraOps/
 - **WebSocket**: Real-time communication
 - **Structured Logging**: JSON-based log aggregation
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
 ### Development Workflow
 
 1. **Fork the repository**
@@ -312,10 +306,6 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **Documentation**: Keep docs synchronized with code changes
 - **Testing**: Maintain >80% test coverage
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - **OpenAI** for the gpt-oss-20b model
@@ -323,13 +313,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **FastAPI** for the robust API framework
 - **Next.js** for the modern UI framework
 - **Typer** for the intuitive CLI interface
-
-## 💬 Support
-
-- **Documentation**: [docs.neuraops.com](https://docs.neuraops.com)
-- **Issues**: [GitHub Issues](https://github.com/neuraops/neuraops/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/neuraops/neuraops/discussions)
-- **Email**: team@neuraops.dev
 
 ---
 
